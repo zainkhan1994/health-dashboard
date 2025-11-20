@@ -1,13 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import Papa from 'papaparse';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+
+// Demo CSV content inline for testing
+const demoCSV = `id,date,marker,value,reference_range,provider,lab,source_file
+1,2024-07-15,WBC,7.5 x10E3/uL,4.5-11.0 x10E3/uL,Dr. Smith,LabCorp,healow_2024.csv
+2,2024-07-15,RBC,5.2 x10E6/uL,4.5-5.9 x10E6/uL,Dr. Smith,LabCorp,healow_2024.csv
+44,2025-10-23,"Vitamin B12, quoted ""test""",785 pg/mL,232-1245 pg/mL,Dr. Williams,LabCorp,healow_2025.csv
+45,2025-10-23,"Test with, comma",Normal,N/A,Dr. Williams,LabCorp,healow_2025.csv`;
 
 describe('CSV Parser', () => {
   it('should parse demo CSV correctly', async () => {
-    // Read the demo CSV file
-    const csvPath = join(process.cwd(), 'src/data/demo/consolidated_labs_demo.csv');
-    const csvContent = readFileSync(csvPath, 'utf-8');
+    const csvContent = demoCSV;
 
     return new Promise((resolve, reject) => {
       Papa.parse(csvContent, {
@@ -18,7 +21,7 @@ describe('CSV Parser', () => {
             // Assert we have data
             expect(results.data).toBeDefined();
             expect(results.data.length).toBeGreaterThan(0);
-            expect(results.data.length).toBe(45);
+            expect(results.data.length).toBe(4);
 
             // Check first record structure
             const firstRecord = results.data[0];

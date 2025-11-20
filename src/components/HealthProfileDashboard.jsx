@@ -124,7 +124,6 @@ const HealthProfileDashboard = () => {
       header: true,
       skipEmptyLines: true,
       dynamicTyping: false,
-      worker: true,
       transformHeader: (header) => mapHeader(header),
       complete: (results) => {
         setIsLoading(false);
