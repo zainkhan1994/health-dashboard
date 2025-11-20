@@ -1,0 +1,46 @@
+id,date,marker,value,reference_range,provider,lab,source_file
+1,2024-07-15,WBC,7.5 x10E3/uL,4.5-11.0 x10E3/uL,Dr. Smith,LabCorp,healow_2024.csv
+2,2024-07-15,RBC,5.2 x10E6/uL,4.5-5.9 x10E6/uL,Dr. Smith,LabCorp,healow_2024.csv
+3,2024-07-15,Hemoglobin,15.2 g/dL,13.0-17.7 g/dL,Dr. Smith,LabCorp,healow_2024.csv
+4,2024-07-15,Hematocrit,45.8 %,37.5-51.0 %,Dr. Smith,LabCorp,healow_2024.csv
+5,2024-07-15,Platelets,275 x10E3/uL,150-450 x10E3/uL,Dr. Smith,LabCorp,healow_2024.csv
+6,2024-07-15,Glucose,91 mg/dL,70-99 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+7,2024-07-15,BUN,25 mg/dL,6-20 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+8,2024-07-15,Creatinine,1.43 mg/dL,0.76-1.27 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+9,2024-07-15,Total Cholesterol,198 mg/dL,100-199 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+10,2024-07-15,Triglycerides,71 mg/dL,0-149 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+11,2024-07-15,HDL Cholesterol,79 mg/dL,40-125 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+12,2024-07-15,LDL Cholesterol,106 mg/dL,0-99 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+13,2024-07-15,TSH,1.28 uIU/mL,0.45-4.50 uIU/mL,Dr. Smith,LabCorp,healow_2024.csv
+14,2024-07-15,"Vitamin B12, Special",1929 pg/mL,232-1245 pg/mL,Dr. Smith,LabCorp,healow_2024.csv
+15,2024-07-15,Vitamin D 25-Hydroxy,42.7 ng/mL,30-100 ng/mL,Dr. Smith,LabCorp,healow_2024.csv
+16,2024-08-20,WBC,7.5 x10E3/uL,4.5-11.0 x10E3/uL,Dr. Smith,LabCorp,healow_2024.csv
+17,2024-08-20,RBC,4.83 x10E6/uL,4.5-5.9 x10E6/uL,Dr. Smith,LabCorp,healow_2024.csv
+18,2024-08-20,Hemoglobin,14.1 g/dL,13.0-17.7 g/dL,Dr. Smith,LabCorp,healow_2024.csv
+19,2024-08-20,Hematocrit,42.9 %,37.5-51.0 %,Dr. Smith,LabCorp,healow_2024.csv
+20,2024-08-20,Platelets,295 x10E3/uL,150-450 x10E3/uL,Dr. Smith,LabCorp,healow_2024.csv
+21,2024-08-20,Glucose,85 mg/dL,70-99 mg/dL,Dr. Smith,LabCorp,healow_2024.csv
+22,2024-09-15,TSH,1.74 uIU/mL,0.45-4.50 uIU/mL,Dr. Johnson,Quest,healow_2024.csv
+23,2024-09-15,Free T4,1.61 ng/dL,0.82-1.77 ng/dL,Dr. Johnson,Quest,healow_2024.csv
+24,2024-09-15,Total Protein,7.5 g/dL,6.0-8.5 g/dL,Dr. Johnson,Quest,healow_2024.csv
+25,2024-09-15,Albumin,4.1 g/dL,4.3-5.2 g/dL,Dr. Johnson,Quest,healow_2024.csv
+26,2024-12-10,C-Reactive Protein,<1 mg/L,0-10 mg/L,Dr. Johnson,Quest,healow_2024.csv
+27,2024-12-10,Sedimentation Rate,2 mm/hr,0-15 mm/hr,Dr. Johnson,Quest,healow_2024.csv
+28,2025-03-15,Glucose,82 mg/dL,70-99 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+29,2025-03-15,BUN,18 mg/dL,6-20 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+30,2025-03-15,Creatinine,0.93 mg/dL,0.76-1.27 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+31,2025-03-15,Total Cholesterol,185 mg/dL,100-199 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+32,2025-03-15,Triglycerides,59 mg/dL,0-149 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+33,2025-03-15,HDL Cholesterol,79 mg/dL,40-125 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+34,2025-03-15,LDL Cholesterol,95 mg/dL,0-99 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+35,2025-10-22,WBC,7.5 x10E3/uL,4.5-11.0 x10E3/uL,Dr. Williams,LabCorp,healow_2025.csv
+36,2025-10-22,RBC,4.83 x10E6/uL,4.5-5.9 x10E6/uL,Dr. Williams,LabCorp,healow_2025.csv
+37,2025-10-22,Hemoglobin,14.1 g/dL,13.0-17.7 g/dL,Dr. Williams,LabCorp,healow_2025.csv
+38,2025-10-22,Glucose,85 mg/dL,70-99 mg/dL,Dr. Williams,LabCorp,healow_2025.csv
+39,2025-10-22,TSH,1.28 uIU/mL,0.45-4.50 uIU/mL,Dr. Williams,LabCorp,healow_2025.csv
+40,2025-10-22,Free T4,1.31 ng/dL,0.82-1.77 ng/dL,Dr. Williams,LabCorp,healow_2025.csv
+41,2025-10-22,Vitamin D 25-Hydroxy,24.9 ng/mL,30-100 ng/mL,Dr. Williams,LabCorp,healow_2025.csv
+42,2025-10-22,Ferritin,48 ng/mL,30-400 ng/mL,Dr. Williams,LabCorp,healow_2025.csv
+43,2025-10-23,Vitamin D 25-Hydroxy,25.1 ng/mL,30-100 ng/mL,Dr. Williams,LabCorp,healow_2025.csv
+44,2025-10-23,"Vitamin B12, quoted ""test""",785 pg/mL,232-1245 pg/mL,Dr. Williams,LabCorp,healow_2025.csv
+45,2025-10-23,"Test with, comma",Normal,N/A,Dr. Williams,LabCorp,healow_2025.csv
