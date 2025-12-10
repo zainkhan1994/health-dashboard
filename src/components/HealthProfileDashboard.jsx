@@ -1,5 +1,33 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Papa from 'papaparse';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Bar, Line, Pie } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 // Simple hash function for generating stable IDs
 const generateStableId = (record) => {
@@ -54,6 +82,70 @@ const extractYear = (dateStr) => {
   // Fallback to regex for first 4 digits
   const match = dateStr.match(/(\d{4})/);
   return match ? match[1] : 'Unknown';
+};
+
+// Extract year-month from date string for time series
+const extractYearMonth = (dateStr) => {
+  if (!dateStr) return 'Unknown';
+  
+  const isoDate = new Date(dateStr);
+  if (!isNaN(isoDate.getTime())) {
+    const year = isoDate.getFullYear();
+    const month = String(isoDate.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+  }
+  
+  return 'Unknown';
+};
+
+// Aggregate top markers by frequency
+const aggregateTopMarkers = (data, topN = 10) => {
+  const markerCounts = {};
+  data.forEach(record => {
+    const marker = record.marker || 'Unknown';
+    markerCounts[marker] = (markerCounts[marker] || 0) + 1;
+  });
+  
+  const sorted = Object.entries(markerCounts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, topN);
+  
+  return {
+    labels: sorted.map(([marker]) => marker),
+    counts: sorted.map(([, count]) => count)
+  };
+};
+
+// Aggregate markers over time (by month)
+const aggregateMarkersOverTime = (data) => {
+  const monthCounts = {};
+  data.forEach(record => {
+    const month = extractYearMonth(record.date);
+    monthCounts[month] = (monthCounts[month] || 0) + 1;
+  });
+  
+  const sorted = Object.entries(monthCounts)
+    .filter(([month]) => month !== 'Unknown')
+    .sort(([a], [b]) => a.localeCompare(b));
+  
+  return {
+    labels: sorted.map(([month]) => month),
+    counts: sorted.map(([, count]) => count)
+  };
+};
+
+// Aggregate provider distribution
+const aggregateProviders = (data) => {
+  const providerCounts = {};
+  data.forEach(record => {
+    const provider = record.provider || 'Unknown';
+    providerCounts[provider] = (providerCounts[provider] || 0) + 1;
+  });
+  
+  return {
+    labels: Object.keys(providerCounts),
+    counts: Object.values(providerCounts)
+  };
 };
 
 const HealthProfileDashboard = () => {
@@ -112,6 +204,90 @@ const HealthProfileDashboard = () => {
     const numericYears = yearArray.filter(y => y !== 'Unknown').sort((a, b) => parseInt(b) - parseInt(a));
     const hasUnknown = yearArray.includes('Unknown');
     return ['All', ...numericYears, ...(hasUnknown ? ['Unknown'] : [])];
+  }, [data]);
+
+  // Compute chart data
+  const topMarkersData = useMemo(() => {
+    if (data.length === 0) return null;
+    const { labels, counts } = aggregateTopMarkers(data, 10);
+    return {
+      labels,
+      datasets: [{
+        label: 'Frequency',
+        data: counts,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    };
+  }, [data]);
+
+  const markersOverTimeData = useMemo(() => {
+    if (data.length === 0) return null;
+    const { labels, counts } = aggregateMarkersOverTime(data);
+    return {
+      labels,
+      datasets: [{
+        label: 'Records per Month',
+        data: counts,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        tension: 0.1,
+        fill: true
+      }]
+    };
+  }, [data]);
+
+  const providersData = useMemo(() => {
+    if (data.length === 0) return null;
+    const { labels, counts } = aggregateProviders(data);
+    return {
+      labels,
+      datasets: [{
+        label: 'Records',
+        data: counts,
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(255, 206, 86, 0.6)',
+          'rgba(75, 192, 192, 0.6)',
+          'rgba(153, 102, 255, 0.6)',
+          'rgba(255, 159, 64, 0.6)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }]
+    };
+  }, [data]);
+
+  // Compute summary statistics
+  const summaryStats = useMemo(() => {
+    if (data.length === 0) return null;
+    
+    const uniqueMarkers = new Set(data.map(r => r.marker).filter(Boolean));
+    const uniqueProviders = new Set(data.map(r => r.provider).filter(Boolean));
+    const dates = data.map(r => r.date).filter(Boolean);
+    const latestDate = dates.length > 0 
+      ? dates.reduce((latest, current) => {
+          const currentDate = new Date(current);
+          const latestDate = new Date(latest);
+          return currentDate > latestDate ? current : latest;
+        })
+      : 'N/A';
+    
+    return {
+      totalRecords: data.length,
+      uniqueMarkers: uniqueMarkers.size,
+      uniqueProviders: uniqueProviders.size,
+      latestDate
+    };
   }, [data]);
 
   // Parse CSV with PapaParse
@@ -384,6 +560,164 @@ const HealthProfileDashboard = () => {
         </div>
       )}
 
+      {/* Summary Statistics and Visualizations */}
+      {data.length > 0 && summaryStats && (
+        <>
+          {/* Summary Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '15px',
+            marginBottom: '20px'
+          }}>
+            <div style={summaryCardStyle}>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Total Records</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>{summaryStats.totalRecords}</div>
+            </div>
+            <div style={summaryCardStyle}>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Unique Markers</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#28a745' }}>{summaryStats.uniqueMarkers}</div>
+            </div>
+            <div style={summaryCardStyle}>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Providers</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffc107' }}>{summaryStats.uniqueProviders}</div>
+            </div>
+            <div style={summaryCardStyle}>
+              <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>Latest Date</div>
+              <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#17a2b8' }}>{summaryStats.latestDate}</div>
+            </div>
+          </div>
+
+          {/* Charts Section */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+            gap: '20px',
+            marginBottom: '30px'
+          }}>
+            {/* Top Markers Bar Chart */}
+            {topMarkersData && (
+              <div style={chartContainerStyle}>
+                <h3 style={chartTitleStyle}>Top 10 Markers by Frequency</h3>
+                <div style={{ height: '300px', position: 'relative' }}>
+                  <Bar
+                    data={topMarkersData}
+                    options={{
+                      indexAxis: 'y',
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: false
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: (context) => `Count: ${context.parsed.x}`
+                          }
+                        }
+                      },
+                      scales: {
+                        x: {
+                          beginAtZero: true,
+                          title: {
+                            display: true,
+                            text: 'Count'
+                          }
+                        },
+                        y: {
+                          title: {
+                            display: true,
+                            text: 'Marker'
+                          }
+                        }
+                      }
+                    }}
+                    aria-label="Horizontal bar chart showing top 10 health markers by frequency"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Markers Over Time Line Chart */}
+            {markersOverTimeData && (
+              <div style={chartContainerStyle}>
+                <h3 style={chartTitleStyle}>Records Over Time</h3>
+                <div style={{ height: '300px', position: 'relative' }}>
+                  <Line
+                    data={markersOverTimeData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'top'
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: (context) => `Records: ${context.parsed.y}`
+                          }
+                        }
+                      },
+                      scales: {
+                        x: {
+                          title: {
+                            display: true,
+                            text: 'Month'
+                          }
+                        },
+                        y: {
+                          beginAtZero: true,
+                          title: {
+                            display: true,
+                            text: 'Number of Records'
+                          }
+                        }
+                      }
+                    }}
+                    aria-label="Line chart showing health records over time by month"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Providers Distribution Pie Chart */}
+            {providersData && (
+              <div style={chartContainerStyle}>
+                <h3 style={chartTitleStyle}>Provider Distribution</h3>
+                <div style={{ height: '300px', position: 'relative' }}>
+                  <Pie
+                    data={providersData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'right'
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: (context) => {
+                              const label = context.label || '';
+                              const value = context.parsed || 0;
+                              const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                              const percentage = ((value / total) * 100).toFixed(1);
+                              return `${label}: ${value} (${percentage}%)`;
+                            }
+                          }
+                        }
+                      }
+                    }}
+                    aria-label="Pie chart showing distribution of records across providers"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
       {/* Data Table */}
       {filteredData.length > 0 && (
         <div style={{ overflowX: 'auto' }}>
@@ -450,6 +784,29 @@ const tableHeaderStyle = {
 const tableCellStyle = {
   padding: '10px 12px',
   textAlign: 'left'
+};
+
+const summaryCardStyle = {
+  padding: '20px',
+  background: 'white',
+  borderRadius: '8px',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  textAlign: 'center'
+};
+
+const chartContainerStyle = {
+  padding: '20px',
+  background: 'white',
+  borderRadius: '8px',
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+};
+
+const chartTitleStyle = {
+  marginTop: 0,
+  marginBottom: '15px',
+  fontSize: '16px',
+  color: '#333',
+  fontWeight: '600'
 };
 
 export default HealthProfileDashboard;
