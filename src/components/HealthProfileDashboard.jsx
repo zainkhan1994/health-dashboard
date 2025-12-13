@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Papa from 'papaparse';
+import BloodWorkReferenceChart from './BloodWorkReferenceChart';
 
 // Simple hash function for generating stable IDs
 const generateStableId = (record) => {
@@ -65,6 +66,7 @@ const HealthProfileDashboard = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [parseErrors, setParseErrors] = useState([]);
+  const [showReferenceChart, setShowReferenceChart] = useState(false);
 
   // Apply filters to data
   const applyFilters = useCallback(() => {
@@ -275,6 +277,20 @@ const HealthProfileDashboard = () => {
           </button>
         )}
 
+        <button
+          onClick={() => setShowReferenceChart(!showReferenceChart)}
+          style={{
+            padding: '10px 20px',
+            background: showReferenceChart ? '#6c757d' : '#17a2b8',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          {showReferenceChart ? 'Show Lab Data' : 'Show Reference Chart'}
+        </button>
+
         <span style={{ marginLeft: 'auto', color: '#666' }}>
           {isLoading ? 'Loading...' : `${filteredData.length} of ${data.length} records`}
         </span>
@@ -300,138 +316,145 @@ const HealthProfileDashboard = () => {
         </div>
       )}
 
-      {/* Filters Section */}
-      {data.length > 0 && (
-        <div style={{ 
-          marginBottom: '20px', 
-          padding: '15px', 
-          background: '#f8f9fa', 
-          borderRadius: '5px',
-          display: 'flex',
-          gap: '15px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ flex: '1 1 300px' }}>
-            <label htmlFor="search-input" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-              Search
-            </label>
-            <input
-              id="search-input"
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by marker, value, or provider..."
-              style={{
+      {/* Reference Chart View */}
+      {showReferenceChart ? (
+        <BloodWorkReferenceChart />
+      ) : (
+        <>
+          {/* Filters Section */}
+          {data.length > 0 && (
+            <div style={{ 
+              marginBottom: '20px', 
+              padding: '15px', 
+              background: '#f8f9fa', 
+              borderRadius: '5px',
+              display: 'flex',
+              gap: '15px',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ flex: '1 1 300px' }}>
+                <label htmlFor="search-input" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                  Search
+                </label>
+                <input
+                  id="search-input"
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by marker, value, or provider..."
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    boxSizing: 'border-box'
+                  }}
+                  aria-label="Search health records"
+                />
+              </div>
+
+              <div style={{ flex: '0 0 200px' }}>
+                <label htmlFor="provider-select" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                  Provider
+                </label>
+                <select
+                  id="provider-select"
+                  value={selectedProvider}
+                  onChange={(e) => setSelectedProvider(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    boxSizing: 'border-box'
+                  }}
+                  aria-label="Filter by provider"
+                >
+                  {providerList.map(provider => (
+                    <option key={provider} value={provider}>
+                      {provider}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ flex: '0 0 150px' }}>
+                <label htmlFor="year-select" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
+                  Year
+                </label>
+                <select
+                  id="year-select"
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px',
+                    border: '1px solid #ccc',
+                    borderRadius: '4px',
+                    boxSizing: 'border-box'
+                  }}
+                  aria-label="Filter by year"
+                >
+                  {yearList.map(year => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* Data Table */}
+          {filteredData.length > 0 && (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{
                 width: '100%',
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                boxSizing: 'border-box'
-              }}
-              aria-label="Search health records"
-            />
-          </div>
+                borderCollapse: 'collapse',
+                background: 'white',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}>
+                <thead>
+                  <tr style={{ background: '#f8f9fa' }}>
+                    <th style={tableHeaderStyle}>Date</th>
+                    <th style={tableHeaderStyle}>Marker</th>
+                    <th style={tableHeaderStyle}>Value</th>
+                    <th style={tableHeaderStyle}>Reference Range</th>
+                    <th style={tableHeaderStyle}>Provider</th>
+                    <th style={tableHeaderStyle}>Lab</th>
+                    <th style={tableHeaderStyle}>Source</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredData.map(record => (
+                    <tr key={record.id} style={{ borderBottom: '1px solid #dee2e6' }}>
+                      <td style={tableCellStyle}>{record.date || '-'}</td>
+                      <td style={tableCellStyle}>{record.marker || '-'}</td>
+                      <td style={tableCellStyle}>{record.value || '-'}</td>
+                      <td style={tableCellStyle}>{record.reference_range || '-'}</td>
+                      <td style={tableCellStyle}>{record.provider || '-'}</td>
+                      <td style={tableCellStyle}>{record.lab || '-'}</td>
+                      <td style={tableCellStyle}>{record.source_file || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-          <div style={{ flex: '0 0 200px' }}>
-            <label htmlFor="provider-select" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-              Provider
-            </label>
-            <select
-              id="provider-select"
-              value={selectedProvider}
-              onChange={(e) => setSelectedProvider(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                boxSizing: 'border-box'
-              }}
-              aria-label="Filter by provider"
-            >
-              {providerList.map(provider => (
-                <option key={provider} value={provider}>
-                  {provider}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={{ flex: '0 0 150px' }}>
-            <label htmlFor="year-select" style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>
-              Year
-            </label>
-            <select
-              id="year-select"
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '8px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                boxSizing: 'border-box'
-              }}
-              aria-label="Filter by year"
-            >
-              {yearList.map(year => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      )}
-
-      {/* Data Table */}
-      {filteredData.length > 0 && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            background: 'white',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}>
-            <thead>
-              <tr style={{ background: '#f8f9fa' }}>
-                <th style={tableHeaderStyle}>Date</th>
-                <th style={tableHeaderStyle}>Marker</th>
-                <th style={tableHeaderStyle}>Value</th>
-                <th style={tableHeaderStyle}>Reference Range</th>
-                <th style={tableHeaderStyle}>Provider</th>
-                <th style={tableHeaderStyle}>Lab</th>
-                <th style={tableHeaderStyle}>Source</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.map(record => (
-                <tr key={record.id} style={{ borderBottom: '1px solid #dee2e6' }}>
-                  <td style={tableCellStyle}>{record.date || '-'}</td>
-                  <td style={tableCellStyle}>{record.marker || '-'}</td>
-                  <td style={tableCellStyle}>{record.value || '-'}</td>
-                  <td style={tableCellStyle}>{record.reference_range || '-'}</td>
-                  <td style={tableCellStyle}>{record.provider || '-'}</td>
-                  <td style={tableCellStyle}>{record.lab || '-'}</td>
-                  <td style={tableCellStyle}>{record.source_file || '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {data.length === 0 && !isLoading && (
-        <div style={{
-          padding: '40px',
-          textAlign: 'center',
-          background: '#f8f9fa',
-          borderRadius: '5px',
-          color: '#6c757d'
-        }}>
-          <p style={{ fontSize: '18px', marginBottom: '10px' }}>No data loaded</p>
-          <p>Upload a CSV file or load demo data to get started.</p>
-        </div>
+          {data.length === 0 && !isLoading && (
+            <div style={{
+              padding: '40px',
+              textAlign: 'center',
+              background: '#f8f9fa',
+              borderRadius: '5px',
+              color: '#6c757d'
+            }}>
+              <p style={{ fontSize: '18px', marginBottom: '10px' }}>No data loaded</p>
+              <p>Upload a CSV file or load demo data to get started.</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
